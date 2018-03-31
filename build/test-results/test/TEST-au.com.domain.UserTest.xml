@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="au.com.domain.UserTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2018-03-31T02:31:05" hostname="apples-MBP" time="0.001">
+  <properties/>
+  <testcase name="testUserIdAndName" classname="au.com.domain.UserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

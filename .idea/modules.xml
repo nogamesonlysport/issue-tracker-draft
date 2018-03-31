@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/issue-tracking-exam.iml" filepath="$PROJECT_DIR$/.idea/modules/issue-tracking-exam.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/issue-tracking-exam_main.iml" filepath="$PROJECT_DIR$/.idea/modules/issue-tracking-exam_main.iml" group="issue-tracking-exam" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/issue-tracking-exam_test.iml" filepath="$PROJECT_DIR$/.idea/modules/issue-tracking-exam_test.iml" group="issue-tracking-exam" />
+    </modules>
+  </component>
+</project>
