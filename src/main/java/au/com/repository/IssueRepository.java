@@ -15,20 +15,23 @@ import java.util.List;
 @Repository
 public interface IssueRepository extends CrudRepository<Issue, Long>
 {
-    public Issue findById(Long id);
+    List<Issue> findByAssignee(User assignee, Pageable pageable);
 
-    List<Issue> findByAssignee(User assignee);
+    List<Issue> findByReporter(User reporter, Pageable pageable);
 
-    List<Issue> findByReporter(User reporter);
+    List<Issue> findByStatus(String status, Pageable pageable);
 
-    List<Issue> findByStatus(String status);
+    List<Issue> findByAssigneeAndReporterAndStatus(User assignee, User reporter2, String open, Pageable pageable);
 
-    List<Issue> findByAssigneeAndReporterAndStatus(User assignee, User reporter2, String open);
-
-    List<Issue> findAllByOrderByCreatedAsc();
+    List<Issue> findAllByOrderByCreatedAsc(Pageable pageable);
 
     List<Issue> findAllByOrderByCreatedDesc(Pageable pageable);
 
-    List<Issue> findByCreatedBetween(Timestamp startDate, Timestamp endDate);
+    List<Issue> findByCreatedBetween(Timestamp startDate, Timestamp endDate, Pageable pageable);
 
+    List<Issue> findByAssigneeAndReporter(User assignee, User reporter, Pageable pageable);
+
+    List<Issue> findByAssigneeAndStatus(User assignee, String status, Object o);
+
+    List<Issue> findByReporterAndStatus(User reporter, String status, Object o);
 }

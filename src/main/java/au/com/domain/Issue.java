@@ -14,7 +14,7 @@ public class Issue
 {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     private String title;
 
@@ -35,11 +35,11 @@ public class Issue
 
     private Timestamp completed;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -97,5 +97,26 @@ public class Issue
 
     public void setCompleted(Timestamp completed) {
         this.completed = completed;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Issue issue = (Issue) o;
+
+        if (id != null ? !id.equals(issue.id) : issue.id != null) return false;
+        if (!title.equals(issue.title)) return false;
+        return description.equals(issue.description);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + title.hashCode();
+        result = 31 * result + description.hashCode();
+        return result;
     }
 }

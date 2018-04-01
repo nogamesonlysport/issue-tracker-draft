@@ -15,7 +15,7 @@ public class UserTest extends TestCase
         user.setId(1L);
         user.setUserName("John");
 
-        assertEquals(1L, user.getId());
+        assertEquals(1L, user.getId().longValue());
         assertEquals("John", user.getUserName());
     }
 

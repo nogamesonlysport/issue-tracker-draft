@@ -14,7 +14,7 @@ public class User
 {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     @Column(name = "username")
     private String userName;
@@ -25,14 +25,13 @@ public class User
     @OneToMany(mappedBy = "assignee")
     private List<Issue> assignedIssues;
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
-
 
     public String getUserName() {
         return userName;

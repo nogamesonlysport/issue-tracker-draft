@@ -1,11 +1,10 @@
 package au.com.domain;
 
+import au.com.dto.IssueDto;
 import junit.framework.TestCase;
 import org.junit.Test;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Calendar;
 
 /**
  * Created by amitsjoshi on 31/03/18.
@@ -20,11 +19,11 @@ public class IssueTest extends TestCase
         issue.setTitle("Issue number one");
         issue.setDescription("This is issue number one");
         issue.setStatus("backlog");
-        Date creationDate = new Date(Calendar.getInstance().getTime().getTime());
-        issue.setCreated(new Timestamp(System.currentTimeMillis()));
+        Timestamp creationDate = IssueDto.toTimestamp("2018-04-01 10:43:30.209");
+        issue.setCreated(creationDate);
 
-        Date completionDate = new Date(Calendar.getInstance().getTime().getTime());
-        issue.setCompleted(new Timestamp(System.currentTimeMillis()));
+        Timestamp completionDate = IssueDto.toTimestamp("2018-04-01 11:43:30.209");
+        issue.setCompleted(completionDate);
 
         User reporter = new User();
         reporter.setId(1L);
@@ -36,7 +35,7 @@ public class IssueTest extends TestCase
         assignee.setUserName("John");
         issue.setAssignee(assignee);
 
-        assertEquals(1L, issue.getId());
+        assertEquals(1L, issue.getId().longValue());
         assertEquals("Issue number one", issue.getTitle());
         assertEquals("This is issue number one", issue.getDescription());
         assertEquals("backlog", issue.getStatus());
