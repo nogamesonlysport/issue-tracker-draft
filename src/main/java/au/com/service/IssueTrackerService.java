@@ -2,6 +2,7 @@ package au.com.service;
 
 import au.com.domain.Issue;
 import au.com.dto.IssueDto;
+import au.com.exception.ResourceConstraintViolationException;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public interface IssueTrackerService
 {
-    IssueDto createOrUpdateIssue(IssueDto issueDto);
+    IssueDto createOrUpdateIssue(IssueDto issueDto) throws ResourceConstraintViolationException;
 
     IssueDto getById(Long id);
 

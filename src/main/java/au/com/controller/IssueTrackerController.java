@@ -1,8 +1,11 @@
 package au.com.controller;
 
 import au.com.dto.IssueDto;
+import au.com.exception.ResourceConstraintViolationException;
 import au.com.service.IssueTrackerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -16,16 +19,30 @@ public class IssueTrackerController
     private IssueTrackerService issueTrackerService;
 
     @RequestMapping(value = "/issue/{id}", method = RequestMethod.GET)
-    @ResponseBody
-    public IssueDto getIssueById(@PathVariable(value="id") long id)
+    public ResponseEntity<IssueDto> getIssueById(@PathVariable(value="id") long id)
     {
-        return issueTrackerService.getById(id);
+        IssueDto result = issueTrackerService.getById(id);
+        HttpStatus httpStatus = result != null ? HttpStatus.FOUND : HttpStatus.NOT_FOUND;
+        return new ResponseEntity<IssueDto>(result, httpStatus);
     }
 
     @RequestMapping(value = "/issue", method = RequestMethod.POST)
-    @ResponseBody
-    public IssueDto createOrUpdateIssue(@RequestBody IssueDto issueDto)
+    public ResponseEntity<IssueDto> createOrUpdateIssue(@RequestBody IssueDto issueDto) throws ResourceConstraintViolationException {
+        IssueDto result = issueTrackerService.createOrUpdateIssue(issueDto);
+        return  new ResponseEntity<IssueDto>(result, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/issue/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteIssue(@PathVariable(value="id") long id) {
+        issueTrackerService.deleteIssue(id);
+        return  new ResponseEntity<String>(HttpStatus.OK);
+    }
+
+
+
+    @ExceptionHandler(ResourceConstraintViolationException.class)
+    public ResponseEntity<String> handleResourceConstraintViolationException(ResourceConstraintViolationException exception)
     {
-        return issueTrackerService.createOrUpdateIssue(issueDto);
+        return new ResponseEntity<String>(exception.getMessage(),exception.getHttpStatus());
     }
 }

@@ -59,6 +59,13 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
+    public void testIssueRetrievalWithIncorrectId() {
+        Issue issueFromDb = issueRepository.findOne(100L);
+
+        assertNull(issueFromDb);
+    }
+
+    @Test
     public void testUpdationOfIssue()
     {
         Issue issue = createIssue1();

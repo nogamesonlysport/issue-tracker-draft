@@ -3,11 +3,13 @@ package au.com.service;
 import au.com.domain.Issue;
 import au.com.domain.User;
 import au.com.dto.IssueDto;
+import au.com.exception.ResourceConstraintViolationException;
 import au.com.repository.IssueRepository;
 import au.com.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -39,16 +41,23 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
     }
 
     @Override
-    public IssueDto createOrUpdateIssue(IssueDto issueDto)
-    {
+    public IssueDto createOrUpdateIssue(IssueDto issueDto) throws ResourceConstraintViolationException {
         Issue issue = toIssue(issueDto);
 
         User reporter = userRepository.findOne(issueDto.getReporter());
+        if(reporter == null)
+        {
+            throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "An issue has to be reported by a valid user");
+        }
         issue.setReporter(reporter);
 
         if(issueDto.getAssignee() != null)
         {
             User assignee = userRepository.findOne(issueDto.getAssignee());
+            if(reporter == null)
+            {
+                throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "An issue has to be assigned to a valid user");
+            }
             issue.setReporter(assignee);
         }
         Issue persistedIssue = issueRepository.save(issue);
@@ -139,16 +148,20 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
 
     public IssueDto toIssueDto(Issue issue)
     {
-        IssueDto issueDto = modelMapper.map(issue, IssueDto.class);
-        issueDto.setCreated(IssueDto.toString(issue.getCreated()));
-        if(issue.getCompleted() != null)
+        IssueDto issueDto = null;
+        if(issue != null)
         {
-            issueDto.setCompleted(IssueDto.toString(issue.getCreated()));
-        }
-        issueDto.setReporter(issue.getReporter().getId());
-        if(issue.getAssignee()!=null)
-        {
-            issueDto.setAssignee(issue.getAssignee().getId());
+            issueDto = modelMapper.map(issue, IssueDto.class);
+            issueDto.setCreated(IssueDto.toString(issue.getCreated()));
+            if(issue.getCompleted() != null)
+            {
+                issueDto.setCompleted(IssueDto.toString(issue.getCreated()));
+            }
+            issueDto.setReporter(issue.getReporter().getId());
+            if(issue.getAssignee()!=null)
+            {
+                issueDto.setAssignee(issue.getAssignee().getId());
+            }
         }
         return issueDto;
     }
