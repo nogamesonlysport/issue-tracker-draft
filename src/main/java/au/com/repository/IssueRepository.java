@@ -2,6 +2,7 @@ package au.com.repository;
 
 import au.com.domain.Issue;
 import au.com.domain.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -31,7 +32,9 @@ public interface IssueRepository extends CrudRepository<Issue, Long>
 
     List<Issue> findByAssigneeAndReporter(User assignee, User reporter, Pageable pageable);
 
-    List<Issue> findByAssigneeAndStatus(User assignee, String status, Object o);
+    List<Issue> findByAssigneeAndStatus(User assignee, String status, Pageable pageable);
 
-    List<Issue> findByReporterAndStatus(User reporter, String status, Object o);
+    List<Issue> findByReporterAndStatus(User reporter, String status, Pageable pageable);
+
+    Page<Issue> findAll(Pageable pageable);
 }

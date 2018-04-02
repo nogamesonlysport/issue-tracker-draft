@@ -1,11 +1,15 @@
 package au.com.service;
 
+import au.com.domain.Comment;
 import au.com.domain.Issue;
 import au.com.domain.User;
 import au.com.dto.IssueDto;
+import au.com.exception.ResourceConstraintViolationException;
 import au.com.helper.TestHelper;
+import au.com.repository.CommentRepository;
 import au.com.repository.IssueRepository;
 import au.com.repository.UserRepository;
+import au.com.util.DateTimeUtil;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 
 /**
@@ -47,9 +52,12 @@ public class IssueTrackerServiceTest extends TestCase
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private CommentRepository commentRepository;
+
 
     @Before
-    public void setUp() throws ParseException {
+    public void setUp() throws ParseException, ResourceConstraintViolationException {
         User user1 = TestHelper.createUserWithId1();
         Mockito.when(userRepository.findOne(1L)).thenReturn(user1);
 
@@ -74,11 +82,19 @@ public class IssueTrackerServiceTest extends TestCase
         issueWithAssigneeAndReporter.setReporter(user1);
         issueWithAssigneeAndReporter.setAssignee(user2);
         Mockito.when(issueRepository.save(issueFromUpdateRequestDto)).thenReturn(issueWithAssigneeAndReporter);
+
+        Comment comment  = new Comment();
+        comment.setAuthor(user1);
+        comment.setIssue(issueWithId);
+        String dateTime = "2018-04-01 00:10:05";
+        Timestamp dateTimeTimestamp = DateTimeUtil.toTimestamp(dateTime);
+        comment.setPosted(dateTimeTimestamp);
+        final String commentBody = "This is the first comment ever";
+        comment.setBody(commentBody);
     }
 
     @Test
-    public void testIssueCreation()
-    {
+    public void testIssueCreation() throws ResourceConstraintViolationException {
         IssueDto issueDto = TestHelper.getIssueDtoWithoutId1();
 
         IssueDto issueDtoWithId = issueTrackerService.createOrUpdateIssue(issueDto);
@@ -114,29 +130,8 @@ public class IssueTrackerServiceTest extends TestCase
         assertNull(issueDtoWithId);
     }
 
-    /*@Test
-    public void testIssueGetByAssignee()
-    {
-        IssueDto issueDto = TestHelper.getIssueDtoWithoutId1();
-        issueDto.setReporter(1L);
-        issueDto.setAssignee(2L);
-
-        IssueDto issueDtoWithId = issueTrackerService.filterByAssigneeReporterStatus(2L, null, null, null);
-
-        Issue mockIssue = TestHelper.createIssueWithId1();
-        mockIssue.setReporter(TestHelper.createUserWithId1());
-        mockIssue.setAssignee(TestHelper.createUserWithId2());
-
-        assertEquals(mockIssue.getId(), issueDtoWithId.getId());
-        assertEquals(mockIssue.getTitle(), issueDtoWithId.getTitle());
-        assertEquals(mockIssue.getDescription(), issueDtoWithId.getDescription());
-        assertEquals(mockIssue.getReporter().getId(), issueDtoWithId.getReporter());
-        assertEquals(mockIssue.getAssignee().getId(), issueDtoWithId.getAssignee());
-    }*/
-
     @Test
-    public void testIssueUpdate()
-    {
+    public void testIssueUpdate() throws ResourceConstraintViolationException {
         IssueDto issueDto = TestHelper.getIssueDtoWithoutId1();
         issueDto.setAssignee(2L);
 
@@ -156,10 +151,10 @@ public class IssueTrackerServiceTest extends TestCase
     private IssueDto toIssueDto(Issue issue)
     {
         IssueDto issueDto = modelMapper.map(issue, IssueDto.class);
-        issueDto.setCreated(IssueDto.toString(issue.getCreated()));
+        issueDto.setCreated(DateTimeUtil.toString(issue.getCreated()));
         if(issue.getCompleted() != null)
         {
-            issueDto.setCompleted(IssueDto.toString(issue.getCreated()));
+            issueDto.setCompleted(DateTimeUtil.toString(issue.getCreated()));
         }
         issueDto.setReporter(issue.getReporter().getId());
         if(issue.getAssignee()!=null)
@@ -169,12 +164,12 @@ public class IssueTrackerServiceTest extends TestCase
         return issueDto;
     }
 
-    private Issue toIssue(IssueDto issueDto) {
+    private Issue toIssue(IssueDto issueDto) throws ResourceConstraintViolationException {
         Issue issue = modelMapper.map(issueDto, Issue.class);
-        issue.setCreated(IssueDto.toTimestamp(issueDto.getCreated()));
+        issue.setCreated(DateTimeUtil.toTimestamp(issueDto.getCreated()));
         if(issueDto.getCompleted() != null)
         {
-            issue.setCompleted(IssueDto.toTimestamp(issueDto.getCompleted()));
+            issue.setCompleted(DateTimeUtil.toTimestamp(issueDto.getCompleted()));
         }
         return issue;
     }

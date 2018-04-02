@@ -25,6 +25,9 @@ public class User
     @OneToMany(mappedBy = "assignee")
     private List<Issue> assignedIssues;
 
+    @OneToMany(mappedBy = "author")
+    private List<Comment> comments;
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -55,5 +58,13 @@ public class User
 
     public void setAssignedIssues(List<Issue> assignedIssues) {
         this.assignedIssues = assignedIssues;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

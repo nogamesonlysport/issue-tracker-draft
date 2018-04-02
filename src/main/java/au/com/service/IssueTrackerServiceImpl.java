@@ -1,19 +1,26 @@
 package au.com.service;
 
+import au.com.domain.Comment;
 import au.com.domain.Issue;
 import au.com.domain.User;
+import au.com.dto.CommentDto;
 import au.com.dto.IssueDto;
 import au.com.exception.ResourceConstraintViolationException;
+import au.com.repository.CommentRepository;
 import au.com.repository.IssueRepository;
 import au.com.repository.UserRepository;
+import au.com.util.DateTimeUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -30,6 +37,9 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
     @Autowired
     IssueRepository issueRepository;
 
+    @Autowired
+    CommentRepository commentRepository;
+
     @PostConstruct
     public void init()
     {
@@ -37,6 +47,11 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
                 .addMappings(mapper -> {
                     mapper.map(src -> src.getReporter().getId(), IssueDto::setReporter);
                     mapper.map(src -> src.getAssignee().getId(), IssueDto::setAssignee);
+                });
+        modelMapper.createTypeMap(Comment.class, CommentDto.class)
+                .addMappings(mapper -> {
+                    mapper.map(src -> src.getAuthor().getId(), CommentDto::setAuthor);
+                    mapper.map(src -> src.getIssue().getId(), CommentDto::setIssue);
                 });
     }
 
@@ -81,9 +96,30 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
                                                          final String status, final Pageable pageable)
     {
         List<Issue> result = null;
-        User assignee = userRepository.findOne(assigneeId);
-        User reporter = userRepository.findOne(reporterId);
-        if(assignee != null && reporter != null && status != null)
+
+        User assignee = null;
+        if(assigneeId!=null)
+        {
+            assignee = userRepository.findOne(assigneeId);
+        }
+
+        User reporter = null;
+        if(reporterId != null)
+        {
+            reporter = userRepository.findOne(reporterId);
+        }
+
+        if(assignee == null && reporter == null && status == null)
+        {
+           Page<Issue> resultPages = issueRepository.findAll(pageable);
+            Iterator iter = resultPages.iterator();
+            result = new ArrayList<>();
+            while(iter.hasNext())
+            {
+                result.add((Issue) iter.next());
+            }
+        }
+        else if(assignee != null && reporter != null && status != null)
         {
             result = issueRepository.findByAssigneeAndReporterAndStatus(assignee, reporter, status, pageable);
         }
@@ -124,26 +160,56 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
         return toIssueDto(issueRepository.findAllByOrderByCreatedAsc(pageable));
     }
 
+    @Override
+    public List<IssueDto> filterByDateRange(String startDate, String endDate, Pageable pageable) throws ResourceConstraintViolationException {
+        Timestamp startTime = DateTimeUtil.toTimestamp(startDate);
+        Timestamp endTimeStamp = DateTimeUtil.toTimestamp(endDate);
+
+        return toIssueDto(issueRepository.findByCreatedBetween(startTime, endTimeStamp, pageable));
+    }
+
+    @Override
+    public CommentDto createComment(CommentDto commentDto) throws ResourceConstraintViolationException {
+        Comment comment = toComment(commentDto);
+        if(commentDto.getAuthor() == null || commentDto.getIssue() == null || commentDto.getBody() == null)
+        {
+            throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "Mandatory information missing");
+        }
+
+        User author = userRepository.findOne(commentDto.getAuthor());
+        Issue issue = issueRepository.findOne(commentDto.getIssue());
+
+        if(author == null || issue == null)
+        {
+            throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "An issue has to be assigned to a valid user and issue");
+        }
+
+        comment.setAuthor(author);
+        comment.setIssue(issue);
+
+        return toCommentDto(commentRepository.save(comment));
+    }
+
     public List<IssueDto> toIssueDto(List<Issue> issueLst)
     {
         List<IssueDto> issueDtoLst = new ArrayList<>();
         for(Issue issue : issueLst)
         {
-            IssueDto issueDto = modelMapper.map(issue, IssueDto.class);
-            issueDto.setCreated(IssueDto.toString(issue.getCreated()));
-            if(issue.getCompleted() != null)
-            {
-                issueDto.setCompleted(IssueDto.toString(issue.getCreated()));
-            }
-            issueDto.setReporter(issue.getReporter().getId());
-            if(issue.getAssignee()!=null)
-            {
-                issueDto.setAssignee(issue.getAssignee().getId());
-            }
-            issueDtoLst.add(issueDto);
+            issueDtoLst.add(toIssueDto(issue));
         }
 
         return issueDtoLst;
+    }
+
+    public List<CommentDto> toCommentDto(List<Comment> commentLst)
+    {
+        List<CommentDto> commentDtoLst = new ArrayList<>();
+        for(Comment comment : commentLst)
+        {
+            commentDtoLst.add(toCommentDto(comment));
+        }
+
+        return commentDtoLst;
     }
 
     public IssueDto toIssueDto(Issue issue)
@@ -152,10 +218,10 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
         if(issue != null)
         {
             issueDto = modelMapper.map(issue, IssueDto.class);
-            issueDto.setCreated(IssueDto.toString(issue.getCreated()));
+            issueDto.setCreated(DateTimeUtil.toString(issue.getCreated()));
             if(issue.getCompleted() != null)
             {
-                issueDto.setCompleted(IssueDto.toString(issue.getCreated()));
+                issueDto.setCompleted(DateTimeUtil.toString(issue.getCreated()));
             }
             issueDto.setReporter(issue.getReporter().getId());
             if(issue.getAssignee()!=null)
@@ -166,14 +232,32 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
         return issueDto;
     }
 
-    public Issue toIssue(IssueDto issueDto)
-    {
+    public Issue toIssue(IssueDto issueDto) throws ResourceConstraintViolationException {
         Issue issue = modelMapper.map(issueDto, Issue.class);
-        issue.setCreated(IssueDto.toTimestamp(issueDto.getCreated()));
+        issue.setCreated(DateTimeUtil.toTimestamp(issueDto.getCreated()));
         if(issueDto.getCompleted() != null)
         {
-            issue.setCompleted(IssueDto.toTimestamp(issueDto.getCompleted()));
+            issue.setCompleted(DateTimeUtil.toTimestamp(issueDto.getCompleted()));
         }
         return issue;
+    }
+
+    public CommentDto toCommentDto(Comment comment)
+    {
+        CommentDto commentDto = null;
+        if(comment != null)
+        {
+            commentDto = modelMapper.map(comment, CommentDto.class);
+            commentDto.setPosted(DateTimeUtil.toString(comment.getPosted()));
+            commentDto.setAuthor(comment.getAuthor().getId());
+            commentDto.setIssue(comment.getIssue().getId());
+        }
+        return commentDto;
+    }
+
+    public Comment toComment(CommentDto commentDto) throws ResourceConstraintViolationException {
+        Comment comment = modelMapper.map(commentDto, Comment.class);
+        comment.setPosted(DateTimeUtil.toTimestamp(commentDto.getPosted()));
+        return comment;
     }
 }

@@ -2,6 +2,7 @@ package au.com.repository;
 
 import au.com.domain.Issue;
 import au.com.domain.User;
+import au.com.exception.ResourceConstraintViolationException;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +38,7 @@ public class IssueRepositoryTest extends TestCase
 
 
     @Test
-    public void testIssueCreationAndRetrieval()
-    {
+    public void testIssueCreationAndRetrieval() throws ResourceConstraintViolationException {
         Issue issue = createIssue1();
 
         User reporter = userRepository.findOne(1L);
@@ -66,7 +66,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testUpdationOfIssue()
+    public void testUpdationOfIssue() throws ResourceConstraintViolationException
     {
         Issue issue = createIssue1();
 
@@ -93,8 +93,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testDeletionOfIssue()
-    {
+    public void testDeletionOfIssue() throws ResourceConstraintViolationException {
         Issue issue = createIssue1();
 
         User reporter = userRepository.findOne(1L);
@@ -111,7 +110,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByAssignee()
+    public void testFilterByAssignee()  throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -151,7 +150,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByAssigneeWithPagination()
+    public void testFilterByAssigneeWithPagination()  throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -191,7 +190,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByReporter()
+    public void testFilterByReporter() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -231,7 +230,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByReporterWithPagination()
+    public void testFilterByReporterWithPagination() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -269,7 +268,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByStatus()
+    public void testFilterByStatus() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -305,7 +304,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByStatusByPagination()
+    public void testFilterByStatusByPagination() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -345,7 +344,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByAssigneeReporterStatus()
+    public void testFilterByAssigneeReporterStatus() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -386,7 +385,48 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFilterByAssigneeReporterStatusWithPagination()
+    public void testFilterByAssigneeStatus() throws ResourceConstraintViolationException
+    {
+        Issue issue1 = createIssue1();
+
+        User reporter = createUser1();
+        reporter = entityManager.persist(reporter);
+        issue1.setReporter(reporter);
+
+        User assignee = createUser2();
+        assignee = entityManager.persist(assignee);
+        issue1.setAssignee(assignee);
+
+        issue1 = entityManager.persist(issue1);
+        entityManager.flush();
+
+        Issue issue2 = createIssue2();
+
+        User reporter2 = new User();
+        reporter2.setUserName("AJ");
+        reporter2 = entityManager.persist(reporter2);
+        issue2.setReporter(reporter2);
+
+        issue2.setAssignee(reporter2);
+
+        issue2 = entityManager.persist(issue2);
+        entityManager.flush();
+
+        List<Issue> assignedIssues = issueRepository.findByAssigneeAndStatus(reporter2, "open", new PageRequest(0, 10, null));
+
+        assertEquals(1,assignedIssues.size());
+        assertEquals(issue2.getId(), assignedIssues.get(0).getId());
+        assertEquals(issue2.getTitle(), assignedIssues.get(0).getTitle());
+        assertEquals(issue2.getReporter().getId(), assignedIssues.get(0).getReporter().getId());
+
+        entityManager.remove(reporter);
+        entityManager.remove(assignee);
+        entityManager.remove(issue1);
+        entityManager.remove(issue2);
+    }
+
+    @Test
+    public void testFilterByAssigneeReporterStatusWithPagination() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -427,7 +467,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testSortIssuesByCreationDateAsc()
+    public void testSortIssuesByCreationDateAsc() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -468,7 +508,7 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testSortIssuesByCreationDateAscWithPagination()
+    public void testSortIssuesByCreationDateAscWithPagination() throws ResourceConstraintViolationException
     {
         Issue issue1 = createIssue1();
 
@@ -507,7 +547,8 @@ public class IssueRepositoryTest extends TestCase
 
 
     @Test
-    public void testSortIssuesByCreationDateDsc() {
+    public void testSortIssuesByCreationDateDsc() throws ResourceConstraintViolationException
+    {
 
         Issue issue1 = createIssue1();
 
@@ -548,7 +589,8 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testSortIssuesByCreationDateDscWithPagination() {
+    public void testSortIssuesByCreationDateDscWithPagination() throws ResourceConstraintViolationException
+    {
 
         Issue issue1 = createIssue1();
 
@@ -589,7 +631,8 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFindIssuesInDateRange() {
+    public void testFindIssuesInDateRange() throws ResourceConstraintViolationException
+    {
         Issue issue1 = createIssue1();
 
         Calendar yesterday = Calendar.getInstance();
@@ -641,7 +684,8 @@ public class IssueRepositoryTest extends TestCase
     }
 
     @Test
-    public void testFindIssuesInDateRangeWithPagination() {
+    public void testFindIssuesInDateRangeWithPagination() throws ResourceConstraintViolationException
+    {
         Issue issue1 = createIssue1();
 
         Calendar yesterday = Calendar.getInstance();

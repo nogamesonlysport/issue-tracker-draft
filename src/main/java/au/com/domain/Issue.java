@@ -4,6 +4,7 @@ import org.springframework.data.annotation.CreatedBy;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * Created by amitsjoshi on 31/03/18.
@@ -30,6 +31,9 @@ public class Issue
     @ManyToOne
     @JoinColumn(name = "ASSIGNEE")
     private User assignee;
+
+    @OneToMany(mappedBy = "issue")
+    private List<Comment> comments;
 
     private Timestamp created;
 
@@ -97,6 +101,14 @@ public class Issue
 
     public void setCompleted(Timestamp completed) {
         this.completed = completed;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     @Override

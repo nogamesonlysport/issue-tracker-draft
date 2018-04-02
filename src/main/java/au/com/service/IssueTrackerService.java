@@ -1,6 +1,7 @@
 package au.com.service;
 
 import au.com.domain.Issue;
+import au.com.dto.CommentDto;
 import au.com.dto.IssueDto;
 import au.com.exception.ResourceConstraintViolationException;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +26,12 @@ public interface IssueTrackerService
 
     public List<IssueDto> getAllSortedByCreatedDesc(final Pageable pageable);
 
+    public List<IssueDto> filterByDateRange(final String startDate, final String endDate, final Pageable pageable)
+            throws ResourceConstraintViolationException;
+
     public IssueDto toIssueDto(Issue issue);
 
-    public Issue toIssue(IssueDto issueDto);
+    public Issue toIssue(IssueDto issueDto) throws ResourceConstraintViolationException;
+
+    public CommentDto createComment(CommentDto commentDto) throws ResourceConstraintViolationException;
 }

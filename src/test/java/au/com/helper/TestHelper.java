@@ -3,17 +3,16 @@ package au.com.helper;
 import au.com.domain.Issue;
 import au.com.domain.User;
 import au.com.dto.IssueDto;
+import au.com.exception.ResourceConstraintViolationException;
+import au.com.util.DateTimeUtil;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 
 /**
  * Created by amitsjoshi on 01/04/18.
  */
 public class TestHelper
 {
-    private static final SimpleDateFormat dateFormat
-            = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static final String DATE1 = "2018-03-29 09:30:10";
 
     public static User createUser1()
@@ -46,12 +45,12 @@ public class TestHelper
         return user;
     }
 
-    public static Issue createIssue1() {
+    public static Issue createIssue1() throws ResourceConstraintViolationException {
         Issue issue = new Issue();
         issue.setTitle("Issue number one");
         issue.setDescription("This is issue number one");
         issue.setStatus("new");
-        issue.setCreated(IssueDto.toTimestamp(DATE1));
+        issue.setCreated(DateTimeUtil.toTimestamp(DATE1));
         return issue;
     }
 
