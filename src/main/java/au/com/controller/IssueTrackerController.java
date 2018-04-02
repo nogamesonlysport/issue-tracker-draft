@@ -103,4 +103,11 @@ public class IssueTrackerController
     {
         return new ResponseEntity<String>(exception.getMessage(),exception.getHttpStatus());
     }
+
+    /*
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException exception)
+    {
+
+    }*/
 }
