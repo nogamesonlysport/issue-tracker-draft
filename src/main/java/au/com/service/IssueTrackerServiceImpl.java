@@ -111,13 +111,7 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
 
         if(assignee == null && reporter == null && status == null)
         {
-           Page<Issue> resultPages = issueRepository.findAll(pageable);
-            Iterator iter = resultPages.iterator();
-            result = new ArrayList<>();
-            while(iter.hasNext())
-            {
-                result.add((Issue) iter.next());
-            }
+            result = getAllIssuesWithPagination(pageable);
         }
         else if(assignee != null && reporter != null && status != null)
         {
@@ -150,14 +144,15 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
         return toIssueDto(result);
     }
 
-    @Override
-    public List<IssueDto> getAllSortedByCreatedAsc(final Pageable pageable) {
-        return toIssueDto(issueRepository.findAllByOrderByCreatedAsc(pageable));
-    }
-
-    @Override
-    public List<IssueDto> getAllSortedByCreatedDesc(final Pageable pageable) {
-        return toIssueDto(issueRepository.findAllByOrderByCreatedAsc(pageable));
+    private List<Issue> getAllIssuesWithPagination(Pageable pageable) {
+        List<Issue> result;Page<Issue> resultPages = issueRepository.findAll(pageable);
+        Iterator iter = resultPages.iterator();
+        result = new ArrayList<>();
+        while(iter.hasNext())
+        {
+            result.add((Issue) iter.next());
+        }
+        return result;
     }
 
     @Override

@@ -98,7 +98,6 @@ public class IssueTrackerController
 
     }
 
-
     @ExceptionHandler(ResourceConstraintViolationException.class)
     public ResponseEntity<String> handleResourceConstraintViolationException(ResourceConstraintViolationException exception)
     {
