@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="au.com.domain.IssueTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2018-03-31T02:31:05" hostname="apples-MBP" time="0.005">
-  <properties/>
-  <testcase name="testIssueAttributes" classname="au.com.domain.IssueTest" time="0.005"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
