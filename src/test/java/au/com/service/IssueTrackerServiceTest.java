@@ -64,7 +64,7 @@ public class IssueTrackerServiceTest extends TestCase
         User user2 = TestHelper.createUserWithId2();
         Mockito.when(userRepository.findOne(2L)).thenReturn(user2);
 
-        IssueDto issueDto = TestHelper.getIssueDtoWithoutId1();
+        IssueDto issueDto = TestHelper.createIssueDtoWithoutId1();
         Issue issueFromRequestDto = toIssue(issueDto);
         issueFromRequestDto.setReporter(user1);
         Issue issueWithId = TestHelper.createIssueWithId1();
@@ -74,7 +74,7 @@ public class IssueTrackerServiceTest extends TestCase
 
         Mockito.when(issueRepository.findOne(1L)).thenReturn(issueWithId);
 
-        IssueDto issueUpdateDto = TestHelper.getIssueDtoWithoutId1();
+        IssueDto issueUpdateDto = TestHelper.createIssueDtoWithoutId1();
         issueUpdateDto.setReporter(1L);
         issueUpdateDto.setAssignee(2L);
         Issue issueFromUpdateRequestDto = toIssue(issueUpdateDto);
@@ -95,7 +95,7 @@ public class IssueTrackerServiceTest extends TestCase
 
     @Test
     public void testIssueCreation() throws ResourceConstraintViolationException {
-        IssueDto issueDto = TestHelper.getIssueDtoWithoutId1();
+        IssueDto issueDto = TestHelper.createIssueDtoWithoutId1();
 
         IssueDto issueDtoWithId = issueTrackerService.createOrUpdateIssue(issueDto);
 
@@ -132,7 +132,7 @@ public class IssueTrackerServiceTest extends TestCase
 
     @Test
     public void testIssueUpdate() throws ResourceConstraintViolationException {
-        IssueDto issueDto = TestHelper.getIssueDtoWithoutId1();
+        IssueDto issueDto = TestHelper.createIssueDtoWithoutId1();
         issueDto.setAssignee(2L);
 
         IssueDto issueDtoWithId = issueTrackerService.createOrUpdateIssue(issueDto);

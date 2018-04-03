@@ -36,7 +36,7 @@ public class IssueTrackerController
     @RequestMapping(value = "/issue", method = RequestMethod.POST)
     public ResponseEntity<IssueDto> createOrUpdateIssue(@RequestBody IssueDto issueDto) throws ResourceConstraintViolationException {
         IssueDto result = issueTrackerService.createOrUpdateIssue(issueDto);
-        return  new ResponseEntity<IssueDto>(result, HttpStatus.OK);
+        return  new ResponseEntity<IssueDto>(result, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/issue/{id}", method = RequestMethod.DELETE)
@@ -94,7 +94,7 @@ public class IssueTrackerController
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
     public ResponseEntity<CommentDto> createOrUpdateIssue(@RequestBody CommentDto commentDto) throws ResourceConstraintViolationException {
         CommentDto result = issueTrackerService.createComment(commentDto);
-        return  new ResponseEntity<CommentDto>(result, HttpStatus.OK);
+        return  new ResponseEntity<CommentDto>(result, HttpStatus.CREATED);
 
     }
 

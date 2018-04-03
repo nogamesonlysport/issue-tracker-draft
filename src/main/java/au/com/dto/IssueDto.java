@@ -96,4 +96,28 @@ public class IssueDto
     public void setComments(List<CommentDto> comments) {
         this.comments = comments;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IssueDto issueDto = (IssueDto) o;
+
+        if (id != null ? !id.equals(issueDto.id) : issueDto.id != null) return false;
+        if (!title.equals(issueDto.title)) return false;
+        if (!description.equals(issueDto.description)) return false;
+        if (!reporter.equals(issueDto.reporter)) return false;
+        return created.equals(issueDto.created);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = title.hashCode();
+        result = 31 * result + description.hashCode();
+        result = 31 * result + reporter.hashCode();
+        result = 31 * result + created.hashCode();
+        return result;
+    }
 }

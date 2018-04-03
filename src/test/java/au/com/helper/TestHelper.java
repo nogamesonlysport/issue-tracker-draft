@@ -2,9 +2,11 @@ package au.com.helper;
 
 import au.com.domain.Issue;
 import au.com.domain.User;
+import au.com.dto.CommentDto;
 import au.com.dto.IssueDto;
 import au.com.exception.ResourceConstraintViolationException;
 import au.com.util.DateTimeUtil;
+import com.google.gson.Gson;
 
 import java.sql.Timestamp;
 
@@ -75,7 +77,7 @@ public class TestHelper
         return issue2;
     }
 
-    public static IssueDto getIssueDtoWithoutId1()
+    public static IssueDto createIssueDtoWithoutId1()
     {
         IssueDto issue = new IssueDto();
         issue.setStatus("new");
@@ -84,5 +86,41 @@ public class TestHelper
         issue.setCreated(DATE1);
         issue.setReporter(1L);
         return issue;
+    }
+
+    public static IssueDto createIssueDtoWithId1()
+    {
+        IssueDto issueDto = createIssueDtoWithoutId1();
+        issueDto.setId(1L);
+        return issueDto;
+    }
+
+    public static String toJson(Object obj)
+    {
+        Gson gson = new Gson();
+        return gson.toJson(obj);
+    }
+
+    public static IssueDto fromJson(String issueDtoJson)
+    {
+        Gson gson = new Gson();
+        return gson.fromJson(issueDtoJson, IssueDto.class);
+    }
+
+    public static CommentDto createComment()
+    {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setIssue(1L);
+        commentDto.setAuthor(1L);
+        commentDto.setPosted(DATE1);
+        commentDto.setBody("First comment ever!");
+        return commentDto;
+    }
+
+    public static CommentDto createCommentWithId1()
+    {
+        CommentDto commentDto = createComment();
+        commentDto.setId(1L);
+        return commentDto;
     }
 }

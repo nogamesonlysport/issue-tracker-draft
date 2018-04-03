@@ -14,7 +14,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +21,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static au.com.exception.ExceptionDetails.*;
 
 /**
  * Created by amitsjoshi on 31/03/18.
@@ -62,7 +63,7 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
         User reporter = userRepository.findOne(issueDto.getReporter());
         if(reporter == null)
         {
-            throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "An issue has to be reported by a valid user");
+            throw new ResourceConstraintViolationException(INVALID_REPORTER);
         }
         issue.setReporter(reporter);
 
@@ -71,7 +72,7 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
             User assignee = userRepository.findOne(issueDto.getAssignee());
             if(reporter == null)
             {
-                throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "An issue has to be assigned to a valid user");
+                throw new ResourceConstraintViolationException(INVALID_ASSIGNEE);
             }
             issue.setReporter(assignee);
         }
@@ -168,7 +169,7 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
         Comment comment = toComment(commentDto);
         if(commentDto.getAuthor() == null || commentDto.getIssue() == null || commentDto.getBody() == null)
         {
-            throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "Mandatory information missing");
+            throw new ResourceConstraintViolationException(MANDATORY_INFORMATION_MISSING);
         }
 
         User author = userRepository.findOne(commentDto.getAuthor());
@@ -176,7 +177,7 @@ public class IssueTrackerServiceImpl implements IssueTrackerService
 
         if(author == null || issue == null)
         {
-            throw new ResourceConstraintViolationException(HttpStatus.BAD_REQUEST, "An issue has to be assigned to a valid user and issue");
+            throw new ResourceConstraintViolationException(INVALID_ASSIGNEE_AND_ISSUE);
         }
 
         comment.setAuthor(author);

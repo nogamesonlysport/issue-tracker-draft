@@ -11,6 +11,11 @@ public class ResourceConstraintViolationException extends Exception
 
     private HttpStatus httpStatus;
 
+    public ResourceConstraintViolationException(ExceptionDetails exceptionDetails)
+    {
+        this(exceptionDetails.getHttpStatus(), exceptionDetails.getMessage());
+    }
+
     public ResourceConstraintViolationException(HttpStatus httpStatus, String messsage)
     {
         this.httpStatus = httpStatus;
